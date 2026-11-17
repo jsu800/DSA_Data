@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>DFS vs BFS visualizer</title>
+<style>
+body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#f6f7f9;color:#222}
+.wrap{max-width:1040px;margin:auto}
+h1{font-size:20px;margin:0 0 12px}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.card{background:#fff;border:1px solid #dde;border-radius:8px;padding:12px}
+#graphcard{flex:1 1 440px;min-width:0}
+#side{flex:1 1 400px;min-width:0;display:flex;flex-direction:column;gap:12px}
+button{font:inherit;padding:5px 11px;border:1px solid #99a;border-radius:6px;background:#fff;cursor:pointer}
+button:hover{background:#eef}
+button.on{background:#2b5fd9;color:#fff;border-color:#2b5fd9}
+.ctl{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+#msg{min-height:44px;font-size:15px;padding:8px;background:#fffbe6;border:1px solid #ecd;border-radius:6px}
+.chips{display:flex;gap:6px;min-height:34px;align-items:center;flex-wrap:wrap}
+.chip{width:30px;height:30px;border-radius:6px;background:#2b5fd9;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600}
+.lbl{font-size:12px;color:#667;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+pre{margin:0;max-width:100%;font-size:12.5px;line-height:1.5;overflow:auto}
+pre span.ln{display:block;padding:0 6px;border-left:3px solid transparent;min-height:1.5em}
+pre span.hl{background:#fff3b0;border-left-color:#e0a800}
+.node circle{fill:#fff;stroke:#556;stroke-width:3}
+.node.seen circle{fill:#cfe0ff;stroke:#2b5fd9}
+.node.front circle{fill:#ffe9a8;stroke:#e0a800}
+.node.cur circle{fill:#2b5fd9;stroke:#14307a}
+.node.done circle{fill:#d9f2d9;stroke:#2a8a2a}
+.node.sel circle{stroke-dasharray:5 3;stroke:#e0a800;stroke-width:5}
+.node text{font-size:20px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none}
+.node.cur text{fill:#fff}
+.node{cursor:grab}
+.dflab{font-size:12px;fill:#445;text-anchor:middle;pointer-events:none}
+.elab{font-size:13px;font-weight:700;text-anchor:middle;dominant-baseline:central;paint-order:stroke;stroke:#fff;stroke-width:4px;pointer-events:none}
+.legend{font-size:12px;color:#556;margin-top:6px;line-height:1.9}
+.legend b{display:inline-block;width:12px;height:12px;border-radius:50%;vertical-align:middle;margin:0 3px 0 10px;border:2px solid #556}
+.legend i{display:inline-block;width:20px;height:0;border-top:4px solid;vertical-align:middle;margin:0 4px 0 10px}
+textarea,input[type=number]{font:inherit;padding:5px 8px;border:1px solid #99a;border-radius:6px}
+textarea{width:100%;box-sizing:border-box;height:52px;font-family:ui-monospace,monospace;font-size:13px}
+input[type=number]{width:56px}
+.ed{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.ed label{display:flex;gap:4px;align-items:center;font-size:14px}
+.sep{width:1px;height:22px;background:#ccd}
+#err{color:#c22;font-size:13px;min-height:18px;margin-top:4px}
+#adj{margin-top:10px}
+#adj table{border-collapse:collapse;font-size:13px}
+#adj th,#adj td{border:1px solid #dde;padding:3px 10px;text-align:left}
+#adj th{background:#f1f3f8;font-weight:600}
+#adj td.v{font-weight:700;text-align:center}
+#adj tr.cur td{background:#dbe6ff}
+#adj tr.cur td.v{background:#2b5fd9;color:#fff}
+#adj .none{color:#99a}
+#adj tr.src td{background:#f3f6ff}
+#adj .chk{background:#ffd54a;color:#222;font-weight:700;border-radius:4px;padding:0 5px;outline:2px solid #e0a800}
+.hint{font-size:12px;color:#667;margin-top:4px}
+svg.editing{cursor:crosshair}
+</style></head><body><div class="wrap">
+<h1>DFS vs BFS visualizer</h1>
+<div class="ctl">
+ <button id="bDfs" class="on">DFS</button><button id="bBfs">BFS</button>
+ <span class="sep"></span>
+ <button id="bBack">&larr; Back</button><button id="bNext">Next &rarr;</button>
+ <button id="bPlay">Play</button><button id="bReset">Reset</button>
+ <span id="count" style="color:#667"></span>
+</div>
+
+<div class="card" style="margin-bottom:12px">
+ <div class="lbl">Graph</div>
+ <textarea id="edges" spellcheck="false" placeholder="0-1, 0-2, 1-3   (undirected)    or    0>1, 1>2, 2>0   (directed)"></textarea>
+ <div class="hint">Type edges, then press Apply (or Ctrl/Cmd+Enter). Use <code>-</code> for undirected and <code>&gt;</code> for directed, or paste an adjacency list (one line per vertex: <code>2: 0, 3, 5</code> or a tab between the vertex and its neighbors). Vertices are numbered from 0; the vertex count grows to fit, and any extra vertices stay unconnected.</div>
+ <div id="adj"></div>
+ <div class="ed">
+  Vertices <input type="number" id="nIn" min="1" max="12" title="Changing this generates a new random graph"> Start <input type="number" id="sIn" min="0">
+  <span class="sep"></span>
+  <button id="bDir">Undirected</button>
+  <button id="bApply">Apply</button>
+ </div>
+ <div class="ed">
+  Presets:
+  <button data-p="diamond">Diamond</button><button data-p="path">Path</button><button data-p="tree">Tree</button>
+  <button id="bRand">New random graph</button>
+ </div>
+ <div id="err"></div>
+</div>
+
+<div class="row">
+ <div class="card" id="graphcard">
+  <svg id="svg" viewBox="0 0 400 440" width="100%"></svg>
+  <div class="legend" id="legend"></div>
+ </div>
+ <div id="side">
+  <div id="msg"></div>
+  <div class="card"><div class="lbl" id="fLabel"></div><div class="chips" id="front"></div></div>
+  <div class="card"><div class="lbl">Visit order</div><div class="chips" id="order"></div></div>
+  <div class="card"><pre id="code"></pre></div>
+ </div>
+</div></div>
+<script>
+let N=0,E=[],G=[],POS=[],START=0,DIR=false;
+let ALGO={},mode="dfs",i=0,timer=null;
+const COL={tree:"#2b5fd9",back:"#d33",forward:"#2a9d3a",cross:"#e08a00",none:"#aab"};
+const LET={tree:"T",back:"B",forward:"F",cross:"C"};
+const ekey=(a,b)=>DIR?a+">"+b:(a<b?a+"-"+b:b+"-"+a);
+const $=id=>document.getElementById(id);
+
+function tailMsg(base,visited){
+ let m=base;
+  const un=[];for(let v=0;v<N;v++)if(!visited.has(v))un.push(v);
+ if(un.length)m+=` Not reached from ${START}: ${un.join(", ")} (no path from the start vertex).`;
+ return m;
+}
+
+function genDfs(){
+ const steps=[];
+ const visited=new Set(),done=new Set(),disc=Array(N).fill(null),fin=Array(N).fill(null),parent=Array(N).fill(-1),nx=Array(N).fill(0);
+ const order=[],ecls={},stack=[];let t=0;
+ const snap=(msg,line,cur,look,ex)=>steps.push({ex:ex||null,msg,line,front:[...stack],order:[...order],visited:[...visited],done:[...done],cur,look:look||null,ecls:{...ecls},disc:[...disc],fin:[...fin]});
+ const roots=[START];
+ let first=true;
+ for(const r of roots){
+  if(visited.has(r))continue;
+  visited.add(r);order.push(r);disc[r]=++t;stack.push(r);
+  snap(first?`Start: visit ${r} and push it on the stack.`:`Stack is empty but ${r} is still unvisited. Start a new DFS tree at ${r}.`,"new",r,null);first=false;
+  while(stack.length){
+   const v=stack[stack.length-1];
+   if(nx[v]<G[v].length){
+    const w=G[v][nx[v]++],k=ekey(v,w);
+    if(!visited.has(w)){
+     visited.add(w);order.push(w);disc[w]=++t;parent[w]=v;stack.push(w);ecls[k]="tree";
+     snap(`At ${v}: ${DIR?"edge "+v+"\u2192"+w:"neighbor "+w} is new, go deeper. Visit ${w}, push. Tree edge.`,"new",w,k,[v,w]);
+    }else{
+     const onStk=!done.has(w);
+     if(DIR){
+      const cls=onStk?"back":(disc[v]<disc[w]?"forward":"cross");ecls[k]=cls;
+      if(cls==="back"){
+       snap(`Edge ${v}\u2192${w} goes to ${w}, which is still on the stack. Back edge.`,"cls",v,k,[v,w]);
+      }else if(cls==="forward")snap(`Edge ${v}\u2192${w}: ${w} is finished and was discovered after ${v} (it is a descendant). Forward edge.`,"cls",v,k,[v,w]);
+      else snap(`Edge ${v}\u2192${w}: ${w} is finished and was discovered before ${v} (a different branch). Cross edge.`,"cls",v,k,[v,w]);
+     }else{
+      if(w===parent[v])snap(`At ${v}: neighbor ${w} is my parent (the edge I came along). Skip.`,"vis",v,k,[v,w]);
+      else if(onStk){
+       ecls[k]="back";
+       snap(`At ${v}: neighbor ${w} is visited and is not my parent. Back edge.`,"vis",v,k,[v,w]);
+      }else snap(`At ${v}: neighbor ${w} is a finished descendant that already used this edge. Skip.`,"vis",v,k,[v,w]);
+     }
+    }
+   }else{
+    stack.pop();done.add(v);fin[v]=++t;
+    snap(`${v} has no more ${DIR?"out-edges":"neighbors"}. Pop it and backtrack${stack.length?" to "+stack[stack.length-1]:" (stack empty)"}.`,"pop",stack.length?stack[stack.length-1]:null,null);
+   }
+  }
+ }
+ snap(tailMsg("DFS finished.",visited),"loop",null,null);
+ return steps;
+}
+
+function genBfs(){
+ const steps=[];
+ const visited=new Set(),done=new Set(),parent=Array(N).fill(-1);
+ const order=[],ecls={},queue=[];
+ const snap=(msg,line,cur,look,ex)=>steps.push({ex:ex||null,msg,line,front:[...queue],order:[...order],visited:[...visited],done:[...done],cur,look:look||null,ecls:{...ecls},disc:null,fin:null});
+ const roots=[START];
+ let first=true;
+ for(const r of roots){
+  if(visited.has(r))continue;
+  visited.add(r);order.push(r);queue.push(r);
+  snap(first?`Start: mark ${r} visited and enqueue it.`:`Queue is empty but ${r} is still unvisited. Start a new BFS tree at ${r}: mark and enqueue.`,"new",null,null);first=false;
+  while(queue.length){
+   const v=queue.shift();
+   snap(G[v].length?`Dequeue ${v}. Look at its ${DIR?"out-neighbors":"neighbors"}: [${G[v].join(", ")}].`:`Dequeue ${v}. It has no ${DIR?"out-":""}neighbors.`,"deq",v,null);
+   for(const w of G[v]){
+    const k=ekey(v,w);
+    if(!visited.has(w)){
+     visited.add(w);order.push(w);queue.push(w);parent[w]=v;ecls[k]="tree";
+     snap(`At ${v}: ${w} is new. Mark visited, enqueue.`,"new",v,k,[v,w]);
+    }else if(!DIR&&w===parent[v]){
+     snap(`At ${v}: neighbor ${w} is my parent. Skip.`,"vis",v,k,[v,w]);
+    }else{
+     snap(`At ${v}: ${DIR?"edge "+v+"\u2192"+w:"neighbor "+w} already visited, skip.`,"vis",v,k,[v,w]);
+    }
+   }
+   done.add(v);
+  }
+ }
+ snap(tailMsg("Queue empty: BFS finished.",visited),"loop",null,null);
+ return steps;
+}
+
+function codeFor(){
+  if(mode==="dfs"){
+  const L=[["loop","while (!stack.isEmpty()) {"],["peek","  int v = stack.peek();"],["more","  if (next[v] < GRAPH[v].length) {"],["take","    int w = GRAPH[v][next[v]++];"],["vis","    if (visited[w]) {"]];
+  if(DIR)L.push(["cls","      classify(v, w);   // back if onStack[w], else forward/cross"]);
+  if(!DIR)L.push(["vis","      // already seen: skip"]);
+  L.push([null,"    } else {"],["new","      visited[w] = true; parent[w] = v; onStack[w] = true; stack.push(w);"],[null,"    }"],[null,"  } else {"],["pop","    onStack[v] = false; stack.pop();   // backtrack"],[null,"  }"],[null,"}"]);
+  return L;
+ }
+ const L=[["loop","while (!queue.isEmpty()) {"],["deq","  int v = queue.remove();"],["for","  for (int w : GRAPH[v]) {"],["vis","    if (visited[w]) {"]];
+ L.push(["vis","      // already seen: skip"]);
+ L.push([null,"    } else {"],["new","      visited[w] = true; parent[w] = v; queue.add(w);"],[null,"    }"],[null,"  }"],[null,"}"]);
+ return L;
+}
+
+function circleLayout(n){return Array.from({length:n},(_,k)=>{const t=2*Math.PI*k/n-Math.PI/2;return [200+150*Math.cos(t),200+150*Math.sin(t)]})}
+const PRESETS={
+ diamond:{n:5,e:"0-1, 0-2, 1-3, 2-3, 3-4",dir:false,pos:[[200,50],[90,150],[310,150],[200,250],[200,350]]},
+ path:{n:5,e:"0-1, 1-2, 2-3, 3-4",dir:false,pos:[[200,40],[200,120],[200,200],[200,280],[200,360]]},
+ tree:{n:7,e:"0-1, 0-2, 1-3, 1-4, 2-5, 2-6",dir:false,pos:[[200,50],[110,150],[290,150],[60,260],[160,260],[240,260],[340,260]]}
+};
+
+function parseEdges(text,n){
+ const out=[],ign=[];
+ for(const t of text.split(/[,;\n]+/).map(s=>s.trim()).filter(Boolean)){
+  const m=t.match(/^(\d+)\s*(?:->|>|-|\s)\s*(\d+)$/);
+  if(!m)return {err:`Cannot read "${t}". Use 0-1 or 0>1.`};
+  const a=+m[1],b=+m[2];
+  if(a>=n||b>=n)return {err:`Edge ${t} uses a vertex outside 0..${n-1}.`};
+  if(a===b){ign.push(t+" (self-loop)");continue}
+  out.push([a,b]);
+ }
+ return {E:out,ign};
+}
+function normalize(){
+ const seen=new Set(),out=[];
+ for(let [a,b] of E){
+  if(!DIR&&a>b)[a,b]=[b,a];
+  const k=a+","+b;if(seen.has(k))continue;seen.add(k);out.push([a,b]);
+ }
+ E=out;
+}
+function toText(){return E.map(([a,b])=>a+(DIR?">":"-")+b).join(", ")}
+function rebuild(){
+ normalize();
+ START=Math.max(0,Math.min(N-1,START));
+ G=Array.from({length:N},()=>[]);
+ for(const [a,b] of E){G[a].push(b);if(!DIR)G[b].push(a)}
+ G.forEach(l=>l.sort((x,y)=>x-y));
+ ALGO={dfs:genDfs(),bfs:genBfs()};
+ stop();i=0;
+ $("nIn").value=N;$("sIn").value=START;$("sIn").max=N-1;
+ $("edges").value=toText();
+ $("bDir").textContent=DIR?"Directed":"Undirected";
+ $("bDir").className=DIR?"on":"";
+ render();
+}
+function setGraph(n,text,start,pos,dir){
+ const r=parseEdges(text,n);
+ if(r.err){$("err").textContent=r.err;return false}
+ if(!(n>=1&&n<=12)){$("err").textContent="Vertices must be between 1 and 12.";return false}
+ if(!(start>=0&&start<n)){$("err").textContent=`Start must be between 0 and ${n-1}.`;return false}
+ $("err").textContent=r.ign.length?"Ignored: "+r.ign.join(", "):"";
+ if(dir!==undefined)DIR=dir;
+ E=r.E;START=start;
+ if(pos&&pos.length===n)POS=pos.map(p=>[...p]);else if(POS.length!==n)POS=circleLayout(n);
+ N=n;rebuild();return true;
+}
+
+const svg=$("svg");
+function geom(a,b,curved){
+ const [x1,y1]=POS[a],[x2,y2]=POS[b];
+ const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1;
+ let cx=(x1+x2)/2,cy=(y1+y2)/2;
+ if(curved){cx+=-dy/L*34;cy+=dx/L*34}
+ const u=(px,py,qx,qy)=>{const d=Math.hypot(qx-px,qy-py)||1;return [(qx-px)/d,(qy-py)/d]};
+ const [ux,uy]=u(x1,y1,cx,cy),[vx,vy]=u(x2,y2,cx,cy);
+ const re=DIR?28:24;
+ const sx=x1+ux*24,sy=y1+uy*24,ex=x2+vx*re,ey=y2+vy*re;
+ return {d:curved?`M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}`:`M${sx} ${sy} L${ex} ${ey}`,mx:curved?.25*sx+.5*cx+.25*ex:(sx+ex)/2,my:curved?.25*sy+.5*cy+.25*ey:(sy+ey)/2};
+}
+
+function render(){
+ const S=ALGO[mode][i];
+ const hasRev=(a,b)=>E.some(([x,y])=>x===b&&y===a);
+ let defs="<defs>";
+ for(const [n,c] of Object.entries(COL))defs+=`<marker id="m-${n}" viewBox="0 0 10 10" refX="8" refY="5" markerUnits="userSpaceOnUse" markerWidth="15" markerHeight="15" orient="auto"><path d="M0 0L10 5L0 10z" fill="${c}"/></marker>`;
+ defs+="</defs>";
+ let under="",main="",labs="",hit="";
+ E.forEach(([a,b])=>{
+  const k=ekey(a,b),g=geom(a,b,DIR&&hasRev(a,b)),cls=S.ecls[k],isLook=S.look===k;
+  const mk=(c)=>DIR?` marker-end="url(#m-${c})"`:"";
+  if(isLook)under+=`<path d="${g.d}" fill="none" stroke="#ffe27a" stroke-width="10" opacity=".8"/>`;
+  if(cls){main+=`<path d="${g.d}" fill="none" stroke="${COL[cls]}" stroke-width="4"${mk(cls)}/>`;
+   if(DIR&&mode==="dfs")labs+=`<text class="elab" x="${g.mx}" y="${g.my}" fill="${COL[cls]}">${LET[cls]}</text>`}
+  else if(isLook)main+=`<path d="${g.d}" fill="none" stroke="#d33" stroke-width="4" stroke-dasharray="6 4"${mk("back")}/>`;
+  else main+=`<path d="${g.d}" fill="none" stroke="${COL.none}" stroke-width="3"${mk("none")}/>`;
+ });
+ let nodes="";
+ for(let v=0;v<N;v++){
+  let c="";
+  if(S.done.includes(v))c="done";else if(S.visited.includes(v))c="seen";
+  if(mode==="bfs"&&S.front.includes(v)&&S.cur!==v)c="front";
+  if(S.cur===v)c="cur";
+  const [x,y]=POS[v];
+  nodes+=`<g class="node ${c}" data-v="${v}"><circle cx="${x}" cy="${y}" r="24"/><text x="${x}" y="${y}">${v}</text></g>`;
+  if(mode==="dfs"&&S.disc&&S.disc[v]!==null)nodes+=`<text class="dflab" x="${x}" y="${y+40}">${S.disc[v]}/${S.fin[v]===null?"":S.fin[v]}</text>`;
+ }
+ svg.innerHTML=defs+under+main+labs+hit+nodes;
+ $("msg").textContent=S.msg;
+ $("fLabel").textContent=mode==="dfs"?"Stack (bottom \u2192 top)":"Queue (front \u2192 back)";
+ const chips=a=>a.length?a.map(x=>`<div class="chip">${x}</div>`).join(""):'<span style="color:#99a">empty</span>';
+ $("front").innerHTML=chips(S.front);
+ $("order").innerHTML=chips(S.order);
+ $("code").innerHTML=codeFor().map(([id,t])=>`<span class="ln ${id&&id===S.line?"hl":""}">${t.replace(/</g,"&lt;")}</span>`).join("");
+ $("adj").innerHTML=`<table><tr><th>Vertex</th><th>${DIR?"Out-neighbors":"Neighbors"}</th></tr>`+G.map((ns,v)=>{const isEx=S.ex&&S.ex[0]===v;return `<tr class="${S.cur===v?"cur":isEx?"src":""}"><td class="v">${v}</td><td>${ns.length?ns.map(w=>isEx&&S.ex[1]===w?`<span class="chk">${w}</span>`:w).join(", "):'<span class="none">none</span>'}</td></tr>`}).join("")+"</table>";
+ $("count").textContent=`step ${i+1} / ${ALGO[mode].length}`;
+ const dot=(bg,bd,t)=>`<b style="background:${bg};border-color:${bd}"></b>${t}`;
+ let lg=[dot("#fff","#556","unseen"),mode==="bfs"?dot("#ffe9a8","#e0a800","in queue"):dot("#cfe0ff","#2b5fd9","on stack"),dot("#2b5fd9","#14307a","current"),dot("#d9f2d9","#2a8a2a","finished")].join(" ");
+ lg+="<br>";
+ const items=mode==="bfs"?[["tree","tree edge"]]:(DIR?[["tree","T tree"],["back","B back"],["forward","F forward"],["cross","C cross"]]:[["tree","tree edge"],["back","back edge"]]);
+ lg+=items.map(([c,t])=>`<i style="border-color:${COL[c]}"></i>${t}`).join(" ");
+ if(mode==="dfs")lg+=' &nbsp; numbers under vertices: discovery/finish time';
+ $("legend").innerHTML=lg;
+}
+
+function go(d){i=Math.max(0,Math.min(ALGO[mode].length-1,i+d));render()}
+function stop(){clearInterval(timer);timer=null;$("bPlay").textContent="Play"}
+function setMode(m){stop();mode=m;i=0;$("bDfs").className=m==="dfs"?"on":"";$("bBfs").className=m==="bfs"?"on":"";render()}
+$("bDfs").onclick=()=>setMode("dfs");$("bBfs").onclick=()=>setMode("bfs");
+$("bNext").onclick=()=>{stop();go(1)};$("bBack").onclick=()=>{stop();go(-1)};
+$("bReset").onclick=()=>{stop();i=0;render()};
+$("bPlay").onclick=()=>{if(timer)return stop();$("bPlay").textContent="Pause";if(i>=ALGO[mode].length-1)i=0;timer=setInterval(()=>{if(i>=ALGO[mode].length-1)return stop();go(1)},900)};
+document.addEventListener("keydown",e=>{if(e.target.tagName==="TEXTAREA"||e.target.tagName==="INPUT")return;if(e.key==="ArrowRight"){stop();go(1)}if(e.key==="ArrowLeft"){stop();go(-1)}});
+
+$("nIn").onchange=()=>{const n=Math.round(+$("nIn").value);if(!(n>=1&&n<=12)){$("err").textContent="Vertices must be between 1 and 12.";$("nIn").value=N;return}randomGraph(n)};
+$("sIn").onchange=()=>{const v=Math.round(+$("sIn").value);if(!(v>=0&&v<N)){$("err").textContent=`Start must be between 0 and ${N-1}.`;$("sIn").value=START;return}$("err").textContent="";START=v;rebuild()};
+function parseAdjacency(text){
+ const edges=[],ign=[];let maxIdx=-1;
+ for(const raw of text.split(/\r?\n/)){
+  const line=raw.trim();
+  if(!line||/^[A-Za-z]/.test(line))continue;
+  const m=line.match(/^(\d+)\s*(?:[\t:]|\s{2,})?\s*([\d,;\s]*)$/);
+  if(!m)return {err:`Cannot read the line "${line}". Use "vertex, a tab or colon, then neighbors" such as "2: 0, 3, 5".`};
+  const a=+m[1];maxIdx=Math.max(maxIdx,a);
+  for(const t of m[2].split(/[,;\s]+/).filter(Boolean)){
+   const b=+t;maxIdx=Math.max(maxIdx,b);
+   if(a===b){ign.push(a+" listing itself");continue}
+   edges.push([a,b]);
+  }
+ }
+ return {edges,ign,maxIdx};
+}
+function applyText(){
+ let text=$("edges").value;const err=$("err");let note="";
+ let forceDir=null;
+ if(text.split(/\r?\n/).some(l=>/^\s*\d+\s*(?:\t|:|\s{2,})/.test(l))&&!/>/.test(text)&&!/\d\s*-\s*\d/.test(text)){
+  const r=parseAdjacency(text);
+  if(r.err){err.textContent=r.err;return}
+  const set=new Set(r.edges.map(([a,b])=>a+","+b));
+  const sym=r.edges.every(([a,b])=>set.has(b+","+a));
+  forceDir=sym?DIR:true;
+  note=sym?(DIR?"Read as an adjacency list (kept directed, so each listed neighbor is an out-edge).":"Read as an adjacency list. Every link is listed from both ends, so it is undirected."):"Read as an adjacency list. Some links are listed from one end only, so the graph is directed.";
+  if(r.ign.length)note+=" Ignored self-loops: "+r.ign.join(", ")+".";
+  text=r.edges.map(([a,b])=>a+(forceDir?">":"-")+b).join(", ");
+  if(r.maxIdx>=0&&!text)text="";
+ }
+ const hasGt=text.includes(">"),hasDash=/\d\s*-\s*\d/.test(text);
+ if(hasGt&&hasDash){err.textContent='Mixed edge styles. Use only "-" (undirected) or only ">" (directed).';return}
+ const rawNums=($("edges").value.match(/\d+/g)||[]).map(Number),maxIdx=rawNums.length?Math.max(...rawNums):-1;
+ const fieldN=Math.round(+$("nIn").value)||1;
+ const n=Math.max(fieldN,maxIdx+1);
+ if(n>12){err.textContent=`At most 12 vertices (numbered 0 to 11). Your text uses vertex ${maxIdx}.`;return}
+ const start=Math.round(+$("sIn").value);
+ if(!(start>=0&&start<n)){err.textContent=`Start must be between 0 and ${n-1}.`;return}
+ const oldDir=DIR,oldN=N,oldE=E,oldStart=START,oldPos=POS;
+ if(forceDir!==null)DIR=forceDir;else if(hasGt)DIR=true;else if(hasDash)DIR=false;
+ if(n!==N)POS=[];
+ if(!setGraph(n,text,start)){DIR=oldDir;N=oldN;E=oldE;START=oldStart;POS=oldPos;return}
+ if(!err.textContent&&n>fieldN)err.textContent=`Vertex count raised to ${n} to fit the edges.`;
+ if(note)err.textContent=(err.textContent?err.textContent+" ":"")+note;
+}
+$("bApply").onclick=applyText;
+$("edges").addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();applyText()}});
+$("bDir").onclick=()=>{DIR=!DIR;$("err").textContent="";rebuild()};
+document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>{const p=PRESETS[b.dataset.p];setGraph(p.n,p.e,0,p.pos,p.dir)});
+function randomGraph(n){
+ const es=new Set();
+ if(DIR){const m=n+Math.floor(n/2);let tries=0;while(es.size<m&&tries++<200){const a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b)es.add(a+">"+b)}}
+ else{const m=n-1+Math.floor(Math.random()*3);for(let v=1;v<n;v++)es.add(Math.floor(Math.random()*v)+"-"+v);let tries=0;while(es.size<m&&tries++<100){const a=Math.floor(Math.random()*n),b=Math.floor(Math.random()*n);if(a!==b)es.add(Math.min(a,b)+"-"+Math.max(a,b))}}
+ POS=[];$("err").textContent="";
+ setGraph(n,[...es].join(", "),Math.min(START,n-1),null);
+}
+$("bRand").onclick=()=>randomGraph(N);
+let down=null;
+function svgPoint(e){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+svg.addEventListener("pointerdown",e=>{
+ const g=e.target.closest(".node");
+ if(g){down={v:+g.dataset.v,x:e.clientX,y:e.clientY,moved:false};e.preventDefault()}
+});
+svg.addEventListener("pointermove",e=>{
+ if(!down)return;
+ if(!down.moved&&Math.hypot(e.clientX-down.x,e.clientY-down.y)>4)down.moved=true;
+ if(down.moved){const q=svgPoint(e);POS[down.v]=[Math.max(25,Math.min(375,q.x)),Math.max(25,Math.min(380,q.y))];render()}
+});
+window.addEventListener("pointerup",()=>{down=null});
+
+{const p=PRESETS.diamond;setGraph(p.n,p.e,0,p.pos,p.dir)}
+</script></body></html>
