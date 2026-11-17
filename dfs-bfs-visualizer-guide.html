@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DFS vs BFS Visualizer: User Guide</title>
+<style>
+:root{--ink:#222;--muted:#5b6170;--line:#dde;--bg:#f6f7f9;--card:#fff;--blue:#2b5fd9;--navy:#14307a;--soft:#cfe0ff;--yellow:#ffe9a8;--amber:#e0a800;--green:#2a8a2a;--red:#d33;--orange:#e08a00;--fgreen:#2a9d3a;--gray:#aab;--code:#f1f3f8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6}
+.wrap{max-width:900px;margin:auto;padding:28px 20px 40px}
+h1{font-size:30px;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 22px}
+h2{font-size:22px;margin:34px 0 10px;padding-top:6px;border-top:1px solid var(--line)}
+h3{font-size:17px;margin:20px 0 6px}
+p{margin:8px 0}
+a{color:var(--blue)}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;background:var(--code);border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+kbd{background:#fff;box-shadow:0 1px 0 #ccd}
+pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;font-size:14px;line-height:1.5}
+pre code{background:none;border:0;padding:0}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:15px;background:var(--card)}
+th,td{border:1px solid var(--line);padding:7px 10px;text-align:left;vertical-align:top}
+th{background:#eef1f7}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:12px 0}
+.toc ol{margin:6px 0 0;padding-left:22px;columns:2;column-gap:30px}
+.toc li{break-inside:avoid}
+.note{background:#fffbe6;border:1px solid #ecd;border-radius:8px;padding:10px 14px;margin:12px 0}
+figure{margin:16px 0}
+figure img{width:100%;border:1px solid var(--line);border-radius:10px;background:#fff}
+figcaption{color:var(--muted);font-size:14px;margin-top:6px}
+.dot{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid #556;vertical-align:-2px;margin-right:6px}
+.bar{display:inline-block;width:24px;height:0;border-top:4px solid;vertical-align:middle;margin-right:6px}
+.dash{display:inline-block;width:24px;height:0;border-top:4px dashed var(--red);vertical-align:middle;margin-right:6px}
+.badge{display:inline-block;background:#ffd54a;outline:2px solid var(--amber);border-radius:4px;padding:0 5px;font-weight:700}
+ol.steps li{margin-bottom:6px}
+.foot{margin-top:40px;padding-top:14px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;text-align:center}
+@media (max-width:640px){.toc ol{columns:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>DFS vs BFS Visualizer: User Guide</h1>
+<p class="sub">For students in the Graphs (Take 2) unit of <em>Essential Data Structures and Algorithms in Java</em>. The visualizer is at <a href="https://jsu800.github.io/DSA_Data/dfs-bfs-visualizer.html">jsu800.github.io/DSA_Data/dfs-bfs-visualizer.html</a>.</p>
+
+<div class="card toc"><strong>Contents</strong>
+<ol>
+<li><a href="#what">What the visualizer does</a></li>
+<li><a href="#open">Opening it</a></li>
+<li><a href="#quick">Quick start</a></li>
+<li><a href="#layout">The screen at a glance</a></li>
+<li><a href="#graph">Entering a graph</a></li>
+<li><a href="#run">Running a traversal</a></li>
+<li><a href="#read">Reading the display</a></li>
+<li><a href="#rules">How the algorithms behave</a></li>
+<li><a href="#messages">Messages and errors</a></li>
+<li><a href="#tips">Tips for the worksheet</a></li>
+</ol></div>
+
+<h2 id="what">1. What the visualizer does</h2>
+<p>The visualizer runs depth-first search (DFS) and breadth-first search (BFS) on a small graph, one step at a time. At every step it shows which vertex is being processed, which neighbor is being checked, what is waiting on the stack or in the queue, the visit order so far, and the line of Java code that is running. You can type your own graph, load a preset or generate a random one, and switch between undirected and directed edges.</p>
+
+<h2 id="open">2. Opening it</h2>
+<ul>
+<li><strong>In Canvas:</strong> the visualizer is embedded on the worksheet page. If it looks cramped, use the <em>open it in a new tab</em> link above the frame.</li>
+<li><strong>In a browser:</strong> go to <a href="https://jsu800.github.io/DSA_Data/dfs-bfs-visualizer.html">jsu800.github.io/DSA_Data/dfs-bfs-visualizer.html</a>. It works in any current browser on a computer or tablet, with no sign-in or installation.</li>
+<li><strong>Offline:</strong> download <code>dfs-bfs-visualizer.html</code> and double-click it. Everything runs inside that one file.</li>
+</ul>
+<p>When it opens, it shows the <strong>Diamond</strong> preset in DFS mode at step 1.</p>
+
+<h2 id="quick">3. Quick start</h2>
+<ol class="steps">
+<li>Click <strong>DFS</strong> or <strong>BFS</strong> at the top.</li>
+<li>Click <strong>Next →</strong> (or press <kbd>→</kbd>) to move one step. Read the yellow message box to see what just happened.</li>
+<li>Watch the <strong>Stack</strong> or <strong>Queue</strong> panel and the <strong>Visit order</strong> panel change. Click <strong>Play</strong> to run automatically.</li>
+<li>To try your own graph, type edges such as <code>0-1, 0-2, 1-3</code> in the Graph box and click <strong>Apply</strong>.</li>
+</ol>
+
+<h2 id="layout">4. The screen at a glance</h2>
+<figure>
+<img src="dfs-bfs-visualizer-guide-screenshot.png" alt="The visualizer during DFS on the worksheet's six-vertex graph, at step 7 of 20. Vertex 2 is current, the stack holds 0, 1, 3, 2, and the edge from 2 to 0 is marked as a back edge.">
+<figcaption>DFS on the worksheet's six-service graph at step 7 of 20. Vertex 2 is current and is checking neighbor 0 (yellow badge in row 2), which the visualizer marks as a back edge.</figcaption>
+</figure>
+<table>
+<tr><th>Area</th><th>What it shows or does</th></tr>
+<tr><td><strong>Top bar</strong></td><td><strong>DFS</strong> / <strong>BFS</strong> pick the algorithm. <strong>← Back</strong>, <strong>Next →</strong>, <strong>Play</strong> and <strong>Reset</strong> move through the steps. The counter shows the current step and the total, for example <em>step 7 / 20</em>.</td></tr>
+<tr><td><strong>Graph box</strong></td><td>The text of the graph as an edge list. Edit it and click <strong>Apply</strong> to load a new graph.</td></tr>
+<tr><td><strong>Neighbors table</strong></td><td>The adjacency list the code uses, one row per vertex, neighbors in ascending order. It is titled <strong>Out-neighbors</strong> when the graph is directed.</td></tr>
+<tr><td><strong>Vertices / Start</strong></td><td>The number of vertices (1 to 12) and the vertex the traversal starts from.</td></tr>
+<tr><td><strong>Undirected / Directed</strong></td><td>Switches the edge type and reruns both algorithms.</td></tr>
+<tr><td><strong>Presets</strong></td><td><strong>Diamond</strong>, <strong>Path</strong>, <strong>Tree</strong> and <strong>New random graph</strong>.</td></tr>
+<tr><td><strong>Status line</strong></td><td>Notes about what you entered (shown in red under the presets), such as "Vertex count raised to 6" or an error.</td></tr>
+<tr><td><strong>Graph picture</strong></td><td>The vertices and edges, colored by state. Drag a vertex to move it.</td></tr>
+<tr><td><strong>Message box</strong></td><td>A plain-English sentence describing the current step.</td></tr>
+<tr><td><strong>Stack / Queue</strong></td><td>The pending vertices: stack from bottom to top for DFS, queue from front to back for BFS.</td></tr>
+<tr><td><strong>Visit order</strong></td><td>Every vertex visited so far, in order.</td></tr>
+<tr><td><strong>Code panel</strong></td><td>The Java loop for the current algorithm, with the line for this step highlighted.</td></tr>
+</table>
+
+<h2 id="graph">5. Entering a graph</h2>
+
+<h3>Edge list</h3>
+<p>Type edges into the Graph box, separated by commas, semicolons or new lines, then click <strong>Apply</strong> or press <kbd>Ctrl</kbd>+<kbd>Enter</kbd> (<kbd>⌘</kbd>+<kbd>Enter</kbd> on a Mac).</p>
+<table>
+<tr><th>You type</th><th>Meaning</th></tr>
+<tr><td><code>0-1, 0-2, 1-3</code></td><td>Undirected edges: each works both ways.</td></tr>
+<tr><td><code>0&gt;1, 1&gt;2, 2&gt;0</code> (or <code>0-&gt;1</code>)</td><td>Directed edges: <code>0&gt;1</code> goes from 0 to 1 only.</td></tr>
+</table>
+<p>Use one style or the other, not both. Vertices are numbered from 0. If an edge uses a vertex beyond the current count, the count grows to fit; extra vertices with no edges stay unconnected. Repeated edges are merged, and self-loops such as <code>2-2</code> are ignored with a note.</p>
+
+<h3>Adjacency list</h3>
+<p>You can also paste an adjacency list, one line per vertex, with a colon or tab after the vertex number:</p>
+<pre><code>0: 1, 2
+1: 0, 3
+2: 0, 3, 5
+3: 1, 2, 4
+4: 3
+5: 2</code></pre>
+<p>Lines that start with a letter, such as a <code>Vertex Neighbors</code> header, are skipped. If every link is listed from both ends, the graph is read as <strong>undirected</strong>. If some link appears from one end only, it is read as <strong>directed</strong>. The status line tells you which. After you apply, the box shows the same graph as an edge list.</p>
+
+<h3>Other ways to set up a graph</h3>
+<table>
+<tr><th>Control</th><th>What it does</th></tr>
+<tr><td><strong>Diamond</strong></td><td>5 vertices: <code>0-1, 0-2, 1-3, 2-3, 3-4</code>.</td></tr>
+<tr><td><strong>Path</strong></td><td>5 vertices in a line: <code>0-1, 1-2, 2-3, 3-4</code>.</td></tr>
+<tr><td><strong>Tree</strong></td><td>7 vertices: <code>0-1, 0-2, 1-3, 1-4, 2-5, 2-6</code>.</td></tr>
+<tr><td><strong>New random graph</strong></td><td>A random graph with the current vertex count. Undirected random graphs are always connected; directed ones may not be.</td></tr>
+<tr><td><strong>Vertices</strong> field</td><td>Changing the number (1 to 12) creates a new random graph of that size.</td></tr>
+<tr><td><strong>Start</strong> field</td><td>Changes the start vertex and reruns from step 1.</td></tr>
+<tr><td><strong>Undirected / Directed</strong></td><td>Keeps the same edges and switches their type. Switching an undirected edge <code>a-b</code> to directed makes it <code>a&gt;b</code>, from the smaller number to the larger.</td></tr>
+<tr><td>Drag a vertex</td><td>Moves it in the picture. The layout is for readability only and does not change the graph.</td></tr>
+</table>
+<p>Presets are undirected and start at vertex 0. Load a preset first, then click <strong>Undirected</strong> to switch it to directed.</p>
+
+<h2 id="run">6. Running a traversal</h2>
+<table>
+<tr><th>Control</th><th>Action</th></tr>
+<tr><td><strong>DFS</strong> / <strong>BFS</strong></td><td>Switch algorithm. The run restarts at step 1.</td></tr>
+<tr><td><strong>Next →</strong> or <kbd>→</kbd></td><td>Forward one step.</td></tr>
+<tr><td><strong>← Back</strong> or <kbd>←</kbd></td><td>Back one step. Use it to replay a step you missed.</td></tr>
+<tr><td><strong>Play</strong> / <strong>Pause</strong></td><td>Advance automatically, about one step per second. Click again to pause. At the last step, Play starts over.</td></tr>
+<tr><td><strong>Reset</strong></td><td>Return to step 1.</td></tr>
+</table>
+<p>The arrow keys work whenever you are not typing in the Graph box or a number field. Each step is one small action: visiting a vertex, checking one neighbor, or backtracking.</p>
+
+<h2 id="read">7. Reading the display</h2>
+
+<h3>Vertex colors</h3>
+<table>
+<tr><th>Look</th><th>DFS</th><th>BFS</th></tr>
+<tr><td><span class="dot" style="background:#fff"></span>white</td><td>Not reached yet</td><td>Not reached yet</td></tr>
+<tr><td><span class="dot" style="background:var(--soft);border-color:var(--blue)"></span>light blue</td><td>On the stack</td><td>Visited</td></tr>
+<tr><td><span class="dot" style="background:var(--yellow);border-color:var(--amber)"></span>yellow</td><td>(not used)</td><td>Waiting in the queue</td></tr>
+<tr><td><span class="dot" style="background:var(--blue);border-color:var(--navy)"></span>dark blue</td><td>Current vertex</td><td>Current vertex</td></tr>
+<tr><td><span class="dot" style="background:#d9f2d9;border-color:var(--green)"></span>light green</td><td>Finished (popped)</td><td>Finished (all neighbors checked)</td></tr>
+</table>
+
+<h3>Edge colors</h3>
+<table>
+<tr><th>Look</th><th>Meaning</th></tr>
+<tr><td><span class="bar" style="border-color:var(--gray)"></span>gray</td><td>Not examined yet</td></tr>
+<tr><td><span class="bar" style="border-color:var(--blue)"></span>blue</td><td><strong>Tree edge</strong>: the edge used to reach a new vertex</td></tr>
+<tr><td><span class="bar" style="border-color:var(--red)"></span>red</td><td><strong>Back edge</strong> (DFS only): leads to a vertex still on the stack, which means a cycle</td></tr>
+<tr><td><span class="bar" style="border-color:var(--fgreen)"></span>green</td><td><strong>Forward edge</strong> (directed DFS only): leads to a finished descendant</td></tr>
+<tr><td><span class="bar" style="border-color:var(--orange)"></span>orange</td><td><strong>Cross edge</strong> (directed DFS only): leads to a finished vertex in another branch</td></tr>
+<tr><td>yellow glow</td><td>The edge being checked at this step</td></tr>
+<tr><td><span class="dash"></span>dashed red</td><td>Being checked and not classified yet</td></tr>
+</table>
+<p>In directed DFS each classified edge also carries a letter: <strong>T</strong> tree, <strong>B</strong> back, <strong>F</strong> forward, <strong>C</strong> cross. BFS colors only tree edges.</p>
+
+<h3>Numbers under vertices (DFS only)</h3>
+<p>Each vertex shows <strong>discovery/finish</strong> times from one counter that goes up by 1 on every discovery and every finish, starting at 1. In the screenshot, <code>4/</code> under vertex 2 means it was discovered at time 4 and is not finished yet. These are the times Exercise 3 asks for.</p>
+
+<h3>Neighbors table highlights</h3>
+<ul>
+<li>The <strong>blue row</strong> is the current vertex.</li>
+<li>The <span class="badge">yellow badge</span> marks the neighbor being checked right now. The row it sits in is the vertex doing the checking.</li>
+</ul>
+
+<h3>Code panel</h3>
+<p>The highlighted line is the code that matches the current step. For example, <code>if (visited[w])</code> lights up when a neighbor is already visited, and the <code>stack.pop()</code> line lights up when DFS backtracks.</p>
+
+<h2 id="rules">8. How the algorithms behave</h2>
+<ul>
+<li><strong>Neighbor order:</strong> neighbors are always tried in ascending order (the order in the Neighbors table). This matches the worksheet and <code>Traversal.java</code>.</li>
+<li><strong>DFS</strong> keeps the current path on a stack. At each step it looks at the top vertex's next unchecked neighbor: a new neighbor is visited and pushed; when no neighbors are left, the vertex is popped (backtrack).</li>
+<li><strong>BFS</strong> marks a vertex visited <strong>when it is enqueued</strong>, not when it is dequeued, so no vertex ever enters the queue twice.</li>
+<li><strong>Undirected graphs:</strong> the edge back to a vertex's own parent (the edge it arrived along) is skipped, not counted as a cycle. Any other neighbor that is still on the DFS stack is a <strong>back edge</strong>, which means the graph has a cycle.</li>
+<li><strong>Reachability:</strong> a run covers only the vertices reachable from the start vertex. If some are unreachable, the last step's message lists them, for example <em>Not reached from 0: 5, 6</em>.</li>
+</ul>
+
+<h2 id="messages">9. Messages and errors</h2>
+<table>
+<tr><th>Message</th><th>Cause and fix</th></tr>
+<tr><td>Cannot read "…". Use 0-1 or 0&gt;1.</td><td>An edge is not in a form the visualizer recognizes. Check for letters or stray symbols.</td></tr>
+<tr><td>Cannot read the line "…"</td><td>An adjacency-list line is malformed. Use <code>2: 0, 3, 5</code>.</td></tr>
+<tr><td>Mixed edge styles.</td><td>The box contains both <code>-</code> and <code>&gt;</code>. Use one style.</td></tr>
+<tr><td>At most 12 vertices (numbered 0 to 11).</td><td>An edge uses vertex 12 or higher.</td></tr>
+<tr><td>Vertices must be between 1 and 12.</td><td>The Vertices field is out of range.</td></tr>
+<tr><td>Start must be between 0 and n−1.</td><td>The start vertex doesn't exist in the graph.</td></tr>
+<tr><td>Vertex count raised to n to fit the edges.</td><td>Not an error: the count grew to include every vertex you used.</td></tr>
+<tr><td>Ignored: … (self-loop)</td><td>Not an error: edges from a vertex to itself are dropped.</td></tr>
+<tr><td>Read as an adjacency list…</td><td>Not an error: tells you whether your pasted list was read as undirected or directed.</td></tr>
+</table>
+
+<h2 id="tips">10. Tips for the worksheet</h2>
+<ul>
+<li><strong>Exercise 1 and 2:</strong> paste the scenario's adjacency list (section 5) and click Apply. The Vertices field changes from 5 to 6. Do the trace on paper first, then step through to check.</li>
+<li><strong>Counting skips:</strong> every message that ends in "skip" or names a back edge is a check of an already-visited neighbor.</li>
+<li><strong>Exercise 3:</strong> type the directed edges with <code>&gt;</code>, run DFS, and read the discovery/finish numbers and the T/B/F/C letters.</li>
+<li><strong>Predict, then check:</strong> before each <strong>Next</strong>, say what you expect to happen. Use <strong>← Back</strong> to replay any step that surprises you.</li>
+<li><strong>Compare:</strong> run DFS and BFS on the same graph. The set of visited vertices is the same; only the order differs.</li>
+</ul>
+
+<div class="foot">© 2026 Joseph Su. All rights reserved. For enrolled students only.</div>
+</div>
+</body>
+</html>
