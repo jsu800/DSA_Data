@@ -188,14 +188,14 @@ function genBfs(){
 function codeFor(){
   if(mode==="dfs"){
   const L=[["loop","while (!stack.isEmpty()) {"],["peek","  int v = stack.peek();"],["more","  if (next[v] < GRAPH[v].length) {"],["take","    int w = GRAPH[v][next[v]++];"],["vis","    if (visited[w]) {"]];
-  if(DIR)L.push(["cls","      classify(v, w);   // back if onStack[w], else forward/cross"]);
+  if(DIR)L.push(["cls","      classify(v, w);   // back if stack.contains(w), else forward/cross"]);
   if(!DIR)L.push(["vis","      // already seen: skip"]);
-  L.push([null,"    } else {"],["new","      visited[w] = true; parent[w] = v; onStack[w] = true; stack.push(w);"],[null,"    }"],[null,"  } else {"],["pop","    onStack[v] = false; stack.pop();   // backtrack"],[null,"  }"],[null,"}"]);
+  L.push([null,"    } else {"],["new","      visited[w] = true; order.add(w); stack.push(w);"],[null,"    }"],[null,"  } else {"],["pop","    stack.pop();   // backtrack"],[null,"  }"],[null,"}"]);
   return L;
  }
  const L=[["loop","while (!queue.isEmpty()) {"],["deq","  int v = queue.remove();"],["for","  for (int w : GRAPH[v]) {"],["vis","    if (visited[w]) {"]];
  L.push(["vis","      // already seen: skip"]);
- L.push([null,"    } else {"],["new","      visited[w] = true; parent[w] = v; queue.add(w);"],[null,"    }"],[null,"  }"],[null,"}"]);
+ L.push([null,"    } else {"],["new","      visited[w] = true; order.add(w); queue.add(w);"],[null,"    }"],[null,"  }"],[null,"}"]);
  return L;
 }
 
