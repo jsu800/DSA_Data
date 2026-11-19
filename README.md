@@ -9,6 +9,8 @@ Interactive teaching tools for *Essential Data Structures and Algorithms in Java
 | DFS and BFS kit: user guide | https://github.com/jsu800/DSA_Data/blob/main/dfs-bfs-user-guide.md |
 | Quadratic sorts visualizer | https://jsu800.github.io/DSA_Data/quadratic-sorts-visualizer.html |
 | Quadratic sorts kit: user guide | https://jsu800.github.io/DSA_Data/quadratic-sorts-user-guide.html |
+| Quadratic sorts kit visualizer (Predict mode only) | https://jsu800.github.io/DSA_Data/quadratic-sorts-kit-visualizer.html |
+| Quadratic sorts kit: user guide (Markdown) | https://jsu800.github.io/DSA_Data/quadratic-sorts-kit-user-guide.html |
 | Traversal.java (DFS and BFS in Java) | https://github.com/jsu800/DSA_Data/blob/main/Traversal.java |
 | QuadraticSorts.java (bubble, selection, insertion in Java) | https://github.com/jsu800/DSA_Data/blob/main/QuadraticSorts.java |
 
