@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Quadratic Sorts Kit: User Guide</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+  </style>
+  <style>
+  body{max-width:900px;margin:auto;padding:28px 20px 40px;background:#f6f7f9;color:#222;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.6}
+  h1{font-size:30px}h2{font-size:22px;margin-top:34px;padding-top:6px;border-top:1px solid #dde}h3{font-size:17px}
+  a{color:#2b5fd9}table{border-collapse:collapse;width:100%!important;background:#fff;font-size:15px;margin:10px 0}
+  th,td{border:1px solid #dde;padding:7px 10px;text-align:left;vertical-align:top}th{background:#eef1f7}
+  code{font-family:ui-monospace,Menlo,monospace;font-size:14px;background:#f1f3f8;border:1px solid #dde;border-radius:4px;padding:1px 5px}
+  pre{background:#f1f3f8;border:1px solid #dde;border-radius:8px;padding:12px 14px;overflow:auto}pre code{border:0;padding:0;background:none}
+  img{max-width:100%}hr{border:0;border-top:1px solid #dde;margin-top:32px}
+  .copy{text-align:center;color:#5b6170;font-size:14px}
+  </style>
+</head>
+<body>
+<h1 id="quadratic-sorts-kit-user-guide">Quadratic Sorts Kit: User
+Guide</h1>
+<p>This kit teaches bubble sort, selection sort and insertion sort on
+short arrays, with step-by-step traces and operation counts.</p>
+<table>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Who uses it</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>worksheet.md</code></td>
+<td>learners</td>
+<td>A worksheet, Exercises 1 to 6, built on a six-job build queue</td>
+</tr>
+<tr class="even">
+<td><code>visualizer.html</code></td>
+<td>everyone</td>
+<td>Interactive step-by-step bars for all three sorts, with a code
+panel, counters and a comparison table</td>
+</tr>
+<tr class="odd">
+<td><code>QuadraticSorts.java</code></td>
+<td>everyone</td>
+<td>The same sorts as runnable Java, printing a trace</td>
+</tr>
+</tbody>
+</table>
+<p>Give learners <code>worksheet.md</code>, <code>visualizer.html</code>
+and <code>QuadraticSorts.java</code>. The folder also has two zip files:
+<code>learner_kit.zip</code> (worksheet, visualizer, Java) and
+<code>full_kit.zip</code> (the learner files plus this guide and the
+facilitator materials).</p>
+<h2 id="1-running-a-session">1. Running a session</h2>
+<ol type="1">
+<li>Learners open <code>visualizer.html</code> in a browser
+(double-click it; no server, no install, no internet needed).</li>
+<li>They work Exercises 1 to 5 on paper, then use the visualizer in
+Exercise 6 and to check earlier answers.</li>
+<li>Suggested split: Exercises 1 to 3 as a pair, then compare totals on
+a whiteboard; Exercise 4 before opening the visualizer; Exercises 5 and
+6 as a short discussion.</li>
+</ol>
+<h2 id="2-the-visualizer">2. The visualizer</h2>
+<h3 id="controls">Controls</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Control</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Bubble / Selection / Insertion</strong></td>
+<td>Choose the algorithm.</td>
+</tr>
+<tr class="even">
+<td><strong>Back / Next</strong></td>
+<td>Step one action backward or forward. The left and right arrow keys
+do the same.</td>
+</tr>
+<tr class="odd">
+<td><strong>Play / Pause</strong></td>
+<td>Step automatically.</td>
+</tr>
+<tr class="even">
+<td><strong>Reset</strong></td>
+<td>Return to step 0.</td>
+</tr>
+<tr class="odd">
+<td><strong>Size</strong></td>
+<td>Number of values (3 to 12). Changing it generates a new random
+array.</td>
+</tr>
+<tr class="even">
+<td><strong>Example [5 2 4 6 1 3]</strong></td>
+<td>The worksheet array (always 6 values).</td>
+</tr>
+<tr class="odd">
+<td><strong>Random, Already sorted, Reversed, Nearly sorted, Many
+duplicates</strong></td>
+<td>Generate an array of the current Size with that shape. Click again
+for a new one.</td>
+</tr>
+</tbody>
+</table>
+<p>You cannot type your own values; use the Java file for that (see
+section 3).</p>
+<h3 id="what-you-see">What you see</h3>
+<ul>
+<li><strong>Bars.</strong> Each bar is a value; its index is under it.
+Colors: light blue unsorted, yellow being compared, red just swapped or
+shifted, green in its final place (bubble and selection), purple the
+current minimum (selection), pale green the sorted prefix and blue "key
+in hand" with a dashed hole (insertion).</li>
+<li><strong>Message line.</strong> What the algorithm just did, in
+words.</li>
+<li><strong>Counters.</strong> Comparisons so far, and swaps so far
+(bubble, selection) or shifts so far (insertion).</li>
+<li><strong>Code panel.</strong> The Java loop for the chosen algorithm,
+with the line being executed highlighted.</li>
+<li><strong>Totals table.</strong> For the current array, the full-run
+comparisons and swaps/shifts of all three sorts, plus n(n-1)/2. This is
+the quickest way to compare algorithms on the same input.</li>
+</ul>
+<h3 id="reading-the-bars-together-with-the-code">Reading the bars
+together with the code</h3>
+<p>Step through bubble sort and watch the yellow pair and the
+highlighted line <code>if (a[j] &gt; a[j + 1])</code>. Each yellow pair
+is one comparison. A red pair means a swap followed. After each pass the
+right end turns green.</p>
+<h2 id="3-quadraticsortsjava">3. QuadraticSorts.java</h2>
+<h3 id="run-it">Run it</h3>
+<p>Any Java 11 or newer works:</p>
+<pre><code>javac QuadraticSorts.java
+java QuadraticSorts bubble 5 2 4 6 1 3
+java QuadraticSorts selection 5 2 4 6 1 3
+java QuadraticSorts insertion 5 2 4 6 1 3</code></pre>
+<p>The first argument is the algorithm, the rest are the values. Any
+integers work, so this is the way to try your own array. The program
+prints one line per event and a last <code>DONE</code> line with the
+sorted array and the totals.</p>
+<h3 id="event-lines">Event lines</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Line</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>CMP i j</code></td>
+<td>Bubble: compare a[i] and a[j]. Selection: compare a[i] with the
+current min a[j].</td>
+</tr>
+<tr class="even">
+<td><code>CMP j</code></td>
+<td>Insertion: compare a[j] with the key.</td>
+</tr>
+<tr class="odd">
+<td><code>SWAP i j</code></td>
+<td>Swap a[i] and a[j].</td>
+</tr>
+<tr class="even">
+<td><code>MIN j</code></td>
+<td>Selection: index j is the new min.</td>
+</tr>
+<tr class="odd">
+<td><code>KEEP i</code></td>
+<td>Selection: the min was already at index i, no swap.</td>
+</tr>
+<tr class="even">
+<td><code>STOP</code></td>
+<td>Bubble: a pass with no swaps, so stop early.</td>
+</tr>
+<tr class="odd">
+<td><code>KEY i</code></td>
+<td>Insertion: pick up a[i] as the key.</td>
+</tr>
+<tr class="even">
+<td><code>SHIFT j k</code></td>
+<td>Insertion: copy a[j] one place right (to index k).</td>
+</tr>
+<tr class="odd">
+<td><code>PLACE k</code></td>
+<td>Insertion: put the key at index k.</td>
+</tr>
+<tr class="even">
+<td><code>DONE [..] cmp=C moves=M</code></td>
+<td>Final array, comparisons, and swaps (bubble, selection) or shifts
+(insertion).</td>
+</tr>
+</tbody>
+</table>
+<p>The visualizer is built on the same logic, and its counters equal
+<code>cmp</code> and <code>moves</code> in the Java output.</p>
+<h3 id="comparison-with-the-worksheet">Comparison with the
+worksheet</h3>
+<p><code>java QuadraticSorts bubble 5 2 4 6 1 3</code> ends with
+<code>DONE [1, 2, 3, 4, 5, 6] cmp=15 moves=9</code>, which matches
+Exercise 1. Selection gives <code>cmp=15 moves=3</code>; insertion gives
+<code>cmp=12 moves=9</code>.</p>
+<h2 id="4-the-worksheet-at-a-glance">4. The worksheet at a glance</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Exercise</th>
+<th>Topic</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Bubble sort trace, pass by pass, with early exit</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Selection sort trace, round by round</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Insertion sort trace, key by key, with shifts</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Predict best case and worst case counts, then check them</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Pick an algorithm for six situations, including stability and cost
+of moves</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Part A: find the <code>j &gt; 0</code> bug in insertion sort. Part
+B: check work and explore in the visualizer</td>
+</tr>
+</tbody>
+</table>
+<p>Conventions throughout: ascending order, indexes from 0, and the
+strict tests used in the code.</p>
+<h2 id="5-troubleshooting">5. Troubleshooting</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Problem</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Changing Size replaced my array</td>
+<td>Expected. Size always generates a new array; use the Example button
+for the worksheet array.</td>
+</tr>
+<tr class="even">
+<td>Measured counts differ from the worksheet</td>
+<td>Check the strict comparisons (<code>&gt;</code> in bubble and
+insertion, <code>&lt;</code> in selection) and that you counted only
+comparisons, not moves.</td>
+</tr>
+<tr class="odd">
+<td>Bubble sort shows fewer than 15 comparisons on 6 values</td>
+<td>The early-exit check stopped it. That is correct for an array that
+gets sorted early.</td>
+</tr>
+<tr class="even">
+<td>Java trace differs from the visualizer</td>
+<td>Check the algorithm name and the values. The <code>CMP</code> lines
+should match one for one.</td>
+</tr>
+<tr class="odd">
+<td>Many duplicates looks unsorted</td>
+<td>Equal values are the same color height, so bars may look alike. Read
+the numbers above the bars.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p class="copy">© 2026 Joseph Su. All rights reserved. For enrolled students only.</p>
+</body>
+</html>
