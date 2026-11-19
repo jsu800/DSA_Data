@@ -5,7 +5,7 @@ This kit teaches bubble sort, selection sort and insertion sort on short arrays,
 | File | Who uses it | What it is |
 |---|---|---|
 | `worksheet.md` | learners | A worksheet, Exercises 1 to 6, built on a six-job build queue |
-| `visualizer.html` | everyone | Interactive step-by-step bars for all three sorts, with a code panel, counters, a comparison table and a Predict mode |
+| `visualizer.html` | everyone | Interactive step-by-step bars for all three sorts, with a code panel, counters, a trace log, a comparison table and a Predict mode |
 | `QuadraticSorts.java` | everyone | The same sorts as runnable Java, printing a trace |
 
 
@@ -28,21 +28,23 @@ Give learners `worksheet.md`, `visualizer.html` and `QuadraticSorts.java`. The f
 | **Bubble / Selection / Insertion** | Choose the algorithm. |
 | **Back / Next** | Step one action backward or forward. The left and right arrow keys do the same. |
 | **Play / Pause** | Step automatically. In Predict mode, Play pauses at each question. |
+| **Speed** | How fast Play steps. Drag right for faster. |
 | **Reset** | Return to step 0. |
 | **Size** | Number of values (3 to 12). Changing it generates a new random array. |
 | **Example [5 2 4 6 1 3]** | The worksheet array (always 6 values). |
 | **Random, Already sorted, Reversed, Nearly sorted, Many duplicates** | Generate an array of the current Size with that shape. Click again for a new one. |
+| **Your own + Use** | Type 3 to 12 whole numbers from 0 to 99, separated by spaces or commas, and press Use (or Enter). Use this to check a worksheet trace on any array. |
 | **Predict mode** | Ask before each step instead of just showing it (see below). The score next to the checkbox counts right answers. |
-
-You cannot type your own values; use the Java file for that (see section 3).
+| **Show best and worst cases** | Adds best-to-worst ranges to the totals table. Do Exercise 4 before turning it on. |
 
 ### What you see
 
-- **Bars.** Each bar is a value; its index is under it. Colors: light blue unsorted, yellow being compared, red just swapped or shifted, green in its final place (bubble and selection), purple the current minimum (selection), pale green the sorted prefix and blue "key in hand" with a dashed hole (insertion).
+- **Bars.** Each bar is a value; its index is under it. Colors: light blue unsorted, yellow being compared, red just swapped or shifted, green in its final place (bubble and selection), purple the current minimum (selection), pale green the sorted prefix and blue "key in hand" with a dashed hole (insertion). A short tag under each index (cmp, swap, shift, min, sorted, ✓) says the same thing without relying on color. When values repeat, small letters (30<sub>a</sub>, 30<sub>b</sub>) tell equal values apart, and the last step says whether the sort kept them in their original order (stable).
 - **Message line.** What the algorithm just did, in words.
-- **Counters.** Comparisons so far, and swaps so far (bubble, selection) or shifts so far (insertion).
+- **Counters.** Comparisons so far, swaps so far (bubble, selection) or shifts so far (insertion), and array writes. A swap writes the array 3 times, a shift once, and insertion sort also writes each key once when it places it.
 - **Code panel.** The Java loop for the chosen algorithm, with the line being executed highlighted.
-- **Totals table.** For the current array, the full-run comparisons and swaps/shifts of all three sorts, plus n(n-1)/2. This is the quickest way to compare algorithms on the same input.
+- **Trace log.** Open it to see the same event lines `QuadraticSorts.java` prints (section 3), up to the current step.
+- **Totals table.** For the current array, the full-run comparisons, swaps/shifts and array writes of all three sorts, plus n(n-1)/2. This is the quickest way to compare algorithms on the same input.
 
 ### Predict mode
 
@@ -75,7 +77,7 @@ java QuadraticSorts selection 5 2 4 6 1 3
 java QuadraticSorts insertion 5 2 4 6 1 3
 ```
 
-The first argument is the algorithm, the rest are the values. Any integers work, so this is the way to try your own array. The program prints one line per event and a last `DONE` line with the sorted array and the totals.
+The first argument is the algorithm, the rest are the values. Any integers work, including negative and large ones the visualizer does not accept. The program prints one line per event and a last `DONE` line with the sorted array and the totals.
 
 ### Event lines
 
@@ -122,7 +124,7 @@ Conventions throughout: ascending order, indexes from 0, and the strict tests us
 | Bubble sort shows fewer than 15 comparisons on 6 values | The early-exit check stopped it. That is correct for an array that gets sorted early. |
 | Java trace differs from the visualizer | Check the algorithm name and the values. The `CMP` lines should match one for one. |
 | Next does nothing | Predict mode is on and a question is waiting. Answer it, or untick Predict mode. |
-| Many duplicates looks unsorted | Equal values are the same color height, so bars may look alike. Read the numbers above the bars. |
+| Many duplicates looks unsorted | Equal values have the same height. Read the numbers above the bars; the small letters show which copy is which. |
 
 ---
 
