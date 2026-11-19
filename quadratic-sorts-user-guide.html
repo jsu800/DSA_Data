@@ -242,7 +242,11 @@ do the same.</td>
 </tr>
 <tr class="odd">
 <td><strong>Play / Pause</strong></td>
-<td>Step automatically.</td>
+<td>Step automatically. In Predict mode it pauses at each question.</td>
+</tr>
+<tr class="odd">
+<td><strong>Speed</strong></td>
+<td>How fast Play steps. Drag right for faster.</td>
 </tr>
 <tr class="even">
 <td><strong>Reset</strong></td>
@@ -263,25 +267,51 @@ duplicates</strong></td>
 <td>Generate an array of the current Size with that shape. Click again
 for a new one.</td>
 </tr>
+<tr class="even">
+<td><strong>Your own + Use</strong></td>
+<td>Type 3 to 12 whole numbers from 0 to 99, separated by spaces or
+commas, and press Use (or Enter). Use this to check a worksheet trace on
+any array.</td>
+</tr>
+<tr class="odd">
+<td><strong>Predict mode</strong></td>
+<td>Before each comparison the visualizer asks what will happen (swap
+or not, new min or not, shift or stop) and, in insertion sort, where each
+key will land. Answer to see the step; your score shows next to the
+checkbox. Next and Play wait until you answer.</td>
+</tr>
+<tr class="even">
+<td><strong>Show best and worst cases</strong></td>
+<td>Adds best-to-worst ranges to the totals table. Do Exercise 4 before
+turning it on.</td>
+</tr>
 </tbody>
 </table>
-<p>You cannot type your own values; use the Java file for that (see
-section 3).</p>
 <h3 id="what-you-see">What you see</h3>
 <ul>
 <li><strong>Bars.</strong> Each bar is a value; its index is under it.
 Colors: light blue unsorted, yellow being compared, red just swapped or
 shifted, green in its final place (bubble and selection), purple the
 current minimum (selection), pale green the sorted prefix and blue "key
-in hand" with a dashed hole (insertion).</li>
+in hand" with a dashed hole (insertion). A short tag under each index
+(cmp, swap, shift, min, sorted, &#10003;) says the same thing without
+relying on color. When values repeat, small letters (30<sub>a</sub>,
+30<sub>b</sub>) tell equal values apart, and the last step says whether
+the sort kept them in their original order (stable).</li>
 <li><strong>Message line.</strong> What the algorithm just did, in
 words.</li>
-<li><strong>Counters.</strong> Comparisons so far, and swaps so far
-(bubble, selection) or shifts so far (insertion).</li>
+<li><strong>Counters.</strong> Comparisons so far, swaps so far
+(bubble, selection) or shifts so far (insertion), and array writes. A swap
+writes the array 3 times, a shift once, and insertion sort also writes
+each key once when it places it.</li>
 <li><strong>Code panel.</strong> The Java loop for the chosen algorithm,
 with the line being executed highlighted.</li>
+<li><strong>Trace log.</strong> Open it to see the same event lines
+<code>QuadraticSorts.java</code> prints (section 3), up to the current
+step.</li>
 <li><strong>Totals table.</strong> For the current array, the full-run
-comparisons and swaps/shifts of all three sorts, plus n(n-1)/2. This is
+comparisons, swaps/shifts and array writes of all three sorts, plus
+n(n-1)/2. This is
 the quickest way to compare algorithms on the same input.</li>
 </ul>
 <h3 id="reading-the-bars-together-with-the-code">Reading the bars
@@ -298,7 +328,8 @@ java QuadraticSorts bubble 5 2 4 6 1 3
 java QuadraticSorts selection 5 2 4 6 1 3
 java QuadraticSorts insertion 5 2 4 6 1 3</code></pre>
 <p>The first argument is the algorithm, the rest are the values. Any
-integers work, so this is the way to try your own array. The program
+integers work, including negative and large ones the visualizer does not
+accept. The program
 prints one line per event and a last <code>DONE</code> line with the
 sorted array and the totals.</p>
 <h3 id="event-lines">Event lines</h3>
@@ -433,8 +464,8 @@ should match one for one.</td>
 </tr>
 <tr class="odd">
 <td>Many duplicates looks unsorted</td>
-<td>Equal values are the same color height, so bars may look alike. Read
-the numbers above the bars.</td>
+<td>Equal values have the same height. Read the numbers above the bars;
+the small letters show which copy is which.</td>
 </tr>
 </tbody>
 </table>

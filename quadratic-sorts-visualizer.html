@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Quadratic sorts visualizer</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Quadratic sorts visualizer</title>
 <style>
 body{font-family:system-ui,sans-serif;margin:0;padding:20px;background:#f6f7f9;color:#222}
 .wrap{max-width:1040px;margin:auto}
@@ -13,13 +13,23 @@ button:hover{background:#eef}
 button.on{background:#2b5fd9;color:#fff;border-color:#2b5fd9}
 .ctl{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
 .sep{width:1px;height:22px;background:#ccd}
-input[type=number]{font:inherit;padding:5px 8px;border:1px solid #99a;border-radius:6px;width:56px}
+input[type=number],input[type=text]{font:inherit;padding:5px 8px;border:1px solid #99a;border-radius:6px}
+input[type=number]{width:56px}
+input[type=text]{width:170px}
+label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
 #msg{min-height:44px;font-size:15px;padding:8px;background:#fffbe6;border:1px solid #ecd;border-radius:6px}
+#msg.ask{background:#eef3ff;border-color:#9bb3ee}
+#msg .q{font-weight:600;margin-bottom:8px}
+#msg .opts{display:flex;gap:8px;flex-wrap:wrap}
+#msg .ok{color:#1b7a34;font-weight:700}
+#msg .no{color:#b3261e;font-weight:700}
+#err{color:#b3261e;font-size:13px}
 .lbl{font-size:12px;color:#667;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
 pre{margin:0;font-size:12.5px;line-height:1.5;overflow:auto;max-width:100%}
 pre span.ln{display:block;padding:0 6px;border-left:3px solid transparent;min-height:1.5em;white-space:pre}
 pre span.hl{background:#fff3b0;border-left-color:#e0a800}
-.stats{display:flex;gap:24px;font-size:15px}
+#log{max-height:180px}
+.stats{display:flex;gap:24px;font-size:15px;flex-wrap:wrap}
 .stats b{font-size:22px;display:block}
 table{border-collapse:collapse;font-size:13px;width:100%}
 td,th{border:1px solid #dde;padding:4px 8px;text-align:center}
@@ -27,9 +37,11 @@ th{background:#f0f2f8}
 tr.me td{background:#fff8d6;font-weight:600}
 .legend{font-size:12px;color:#556;margin-top:6px;line-height:1.9}
 .legend b{display:inline-block;width:12px;height:12px;border-radius:2px;vertical-align:middle;margin:0 3px 0 10px;border:1px solid #556}
-.bar{transition:none}
 .num{font-size:15px;font-weight:700;text-anchor:middle}
 .idx{font-size:11px;fill:#778;text-anchor:middle}
+.tag{font-size:10.5px;font-weight:700;fill:#334;text-anchor:middle}
+summary{cursor:pointer;font-size:12px;color:#667;text-transform:uppercase;letter-spacing:.05em}
+.note{font-size:12px;color:#667;margin-top:6px}
 </style></head><body><div class="wrap">
 <h1>Quadratic sorts visualizer</h1>
 <div class="ctl">
@@ -37,41 +49,54 @@ tr.me td{background:#fff8d6;font-weight:600}
  <span class="sep"></span>
  <button id="bBack">&larr; Back</button><button id="bNext">Next &rarr;</button>
  <button id="bPlay">Play</button><button id="bReset">Reset</button>
+ <label>Speed <input type="range" id="speed" min="150" max="1500" step="50" value="700" style="direction:rtl;width:90px" aria-label="Play speed"></label>
  <span id="count" style="color:#667"></span>
 </div>
 <div class="card" style="margin-bottom:12px">
  <div class="lbl">Input array</div>
- <div class="ctl" style="margin-bottom:0">
+ <div class="ctl">
   Size <input type="number" id="nIn" min="3" max="12" value="6">
   <span class="sep"></span>
   <button data-p="example">Example [5 2 4 6 1 3]</button><button data-p="random">Random</button><button data-p="sorted">Already sorted</button>
   <button data-p="reversed">Reversed</button><button data-p="nearly">Nearly sorted</button><button data-p="dups">Many duplicates</button>
  </div>
+ <div class="ctl" style="margin-bottom:0">
+  Your own <input type="text" id="own" placeholder="e.g. 7 3 9 1 3" aria-label="Your own values, 3 to 12 whole numbers from 0 to 99"><button id="bOwn">Use</button>
+  <span id="err" role="alert"></span>
+  <span class="sep"></span>
+  <label><input type="checkbox" id="pred"> Predict mode</label>
+  <span id="score" style="color:#667"></span>
+ </div>
 </div>
 <div class="row">
  <div id="left" class="card">
-  <svg id="svg" viewBox="0 0 600 340" width="100%"></svg>
+  <svg id="svg" viewBox="0 0 600 340" width="100%" role="img" aria-label="Array bars"></svg>
   <div class="legend" id="legend"></div>
  </div>
  <div id="side">
-  <div id="msg"></div>
-  <div class="card"><div class="stats"><div><span class="lbl">Comparisons</span><b id="sCmp">0</b></div><div><span class="lbl" id="mvLbl">Swaps</span><b id="sMv">0</b></div></div></div>
+  <div id="msg" aria-live="polite"></div>
+  <div class="card"><div class="stats"><div><span class="lbl">Comparisons</span><b id="sCmp">0</b></div><div><span class="lbl" id="mvLbl">Swaps</span><b id="sMv">0</b></div><div><span class="lbl">Array writes</span><b id="sWr">0</b></div></div></div>
   <div class="card"><pre id="code"></pre></div>
-  <div class="card"><div class="lbl">Totals for this array (full run)</div><table id="tbl"></table></div>
+  <div class="card"><details id="logBox"><summary>Trace log (same lines as QuadraticSorts.java)</summary><pre id="log" style="margin-top:6px"></pre></details></div>
+  <div class="card"><div class="lbl">Totals for this array (full run)</div><table id="tbl"></table>
+   <label class="note"><input type="checkbox" id="range"> Show best and worst cases (try Exercise 4 first)</label>
+   <div class="note">A swap writes the array 3 times; a shift writes it once, and insertion sort also writes each key once when it places it.</div></div>
  </div>
 </div></div>
 <p style="margin:24px 0 0;text-align:center;color:#5b6170;font-size:13px">© 2026 Joseph Su. All rights reserved. For enrolled students only.</p>
 <script>
 // CORE-START
 const CODE={
-bubble:[["","for (int pass = 0; pass < n - 1; pass++) {"],["outer","    boolean swapped = false;"],["inner","    for (int j = 0; j < n - 1 - pass; j++) {"],["cmp","        if (a[j] > a[j + 1]) {"],["swap","            swap(a, j, j + 1); swapped = true;"],["","        }"],["","    }"],["stop","    if (!swapped) break;"],["","}"]],
+bubble:[["outer","for (int pass = 0; pass < n - 1; pass++) {"],["","    boolean swapped = false;"],["inner","    for (int j = 0; j < n - 1 - pass; j++) {"],["cmp","        if (a[j] > a[j + 1]) {"],["swap","            swap(a, j, j + 1); swapped = true;"],["","        }"],["","    }"],["stop","    if (!swapped) break;"],["","}"]],
 selection:[["outer","for (int i = 0; i < n - 1; i++) {"],["min","    int min = i;"],["inner","    for (int j = i + 1; j < n; j++) {"],["cmp","        if (a[j] < a[min]) min = j;"],["","    }"],["swap","    if (min != i) swap(a, i, min);"],["","}"]],
 insertion:[["outer","for (int i = 1; i < n; i++) {"],["key","    int key = a[i];"],["","    int j = i - 1;"],["cmp","    while (j >= 0 && a[j] > key) {"],["shift","        a[j + 1] = a[j];"],["","        j--;"],["","    }"],["place","    a[j + 1] = key;"],["","}"]]
 };
+// ids[k] = original index of the value now at a[k]; used to show stability.
 function gen(alg,arr0){
- const a=[...arr0],n=a.length,steps=[],log=[];
- let cmp=0,mov=0;const done=new Set();
- const snap=(msg,line,o)=>steps.push(Object.assign({msg,line,arr:[...a],cmp,mov,hi:[],sw:[],done:[...done],minIdx:null,key:null,hole:null,prefix:-1},o||{}));
+ const a=[...arr0],id=arr0.map((_,k)=>k),n=a.length,steps=[],log=[];
+ let cmp=0,mov=0,wr=0;const done=new Set();
+ const snap=(msg,line,o)=>steps.push(Object.assign({msg,line,arr:[...a],ids:[...id],cmp,mov,wr,logN:log.length,hi:[],sw:[],done:[...done],minIdx:null,key:null,keyId:null,hole:null,prefix:-1,q:null},o||{}));
+ const sw=(x,y)=>{[a[x],a[y]]=[a[y],a[x]];[id[x],id[y]]=[id[y],id[x]];mov++;wr+=3};
  if(alg==="bubble"){
   snap("Start. Each pass compares neighbors and swaps them if they are out of order.","",{});
   for(let p=0;p<n-1;p++){
@@ -80,8 +105,9 @@ function gen(alg,arr0){
    for(let j=0;j<n-1-p;j++){
     cmp++;log.push(`CMP ${j} ${j+1}`);
     const gt=a[j]>a[j+1];
-    snap(`Compare a[${j}]=${a[j]} and a[${j+1}]=${a[j+1]}: ${gt?"out of order, swap":"in order, leave them"}.`,"cmp",{hi:[j,j+1]});
-    if(gt){const x=a[j],y=a[j+1];[a[j],a[j+1]]=[y,x];mov++;swapped=true;log.push(`SWAP ${j} ${j+1}`);snap(`Swapped ${x} and ${y}.`,"swap",{sw:[j,j+1]})}
+    snap(`Compare a[${j}]=${a[j]} and a[${j+1}]=${a[j+1]}: ${gt?"out of order, swap":"in order, leave them"}.`,"cmp",{hi:[j,j+1],
+     q:{text:`a[${j}]=${a[j]} and a[${j+1}]=${a[j+1]}: swap them?`,opts:["Swap","Leave them"],ans:gt?0:1}});
+    if(gt){const x=a[j],y=a[j+1];sw(j,j+1);swapped=true;log.push(`SWAP ${j} ${j+1}`);snap(`Swapped ${x} and ${y}.`,"swap",{sw:[j,j+1]})}
    }
    done.add(n-1-p);
    if(!swapped){log.push("STOP");for(let k=0;k<n;k++)done.add(k);snap("No swaps in this pass, so the array is already sorted. Stop early.","stop",{});break}
@@ -95,40 +121,49 @@ function gen(alg,arr0){
    for(let j=i+1;j<n;j++){
     cmp++;log.push(`CMP ${j} ${min}`);
     const lt=a[j]<a[min];
-    snap(`Compare a[${j}]=${a[j]} with the current min a[${min}]=${a[min]}: ${lt?"smaller, new min":"not smaller"}.`,"cmp",{hi:[j],minIdx:min});
+    snap(`Compare a[${j}]=${a[j]} with the current min a[${min}]=${a[min]}: ${lt?"smaller, new min":"not smaller"}.`,"cmp",{hi:[j],minIdx:min,
+     q:{text:`Is a[${j}]=${a[j]} smaller than the current min a[${min}]=${a[min]}?`,opts:["Yes, new min","No"],ans:lt?0:1}});
     if(lt){min=j;log.push(`MIN ${j}`);snap(`New min is index ${j} (${a[j]}).`,"cmp",{minIdx:min})}
    }
-   if(min!==i){const x=a[i],y=a[min];a[i]=y;a[min]=x;mov++;log.push(`SWAP ${i} ${min}`);done.add(i);snap(`Swap a[${i}] and a[${min}]: ${y} goes to index ${i}.`,"swap",{sw:[i,min]})}
+   if(min!==i){const x=a[i],y=a[min];sw(i,min);log.push(`SWAP ${i} ${min}`);done.add(i);snap(`Swap a[${i}] and a[${min}]: ${y} goes to index ${i}.`,"swap",{sw:[i,min]})}
    else{log.push(`KEEP ${i}`);done.add(i);snap(`The min is already at index ${i}. No swap.`,"swap",{})}
   }
   done.add(n-1);
  }else{
   snap("Start. Index 0 alone is a sorted prefix. Insert each next value into it.","",{prefix:0});
   for(let i=1;i<n;i++){
-   const key=a[i];let j=i-1,hole=i;
+   const key=a[i],kid=id[i];let j=i-1,hole=i;
+   let land=i;while(land>0&&a[land-1]>key)land--;
    log.push(`KEY ${i}`);
-   snap(`Pick up key=${key} from index ${i}. Insert it into the sorted prefix a[0..${i-1}].`,"key",{key,hole,prefix:i-1});
+   snap(`Pick up key=${key} from index ${i}. Insert it into the sorted prefix a[0..${i-1}].`,"key",{key,keyId:kid,hole,prefix:i-1,
+    q:{text:`Key ${key} is in hand. At which index will it land?`,opts:Array.from({length:i+1},(_,k)=>String(k)),ans:land}});
    while(j>=0){
     cmp++;log.push(`CMP ${j}`);
     const gt=a[j]>key;
-    snap(`Compare a[${j}]=${a[j]} with key ${key}: ${gt?"bigger, shift it right":"not bigger, stop here"}.`,"cmp",{hi:[j],key,hole:j+1,prefix:i-1});
+    snap(`Compare a[${j}]=${a[j]} with key ${key}: ${gt?"bigger, shift it right":"not bigger, stop here"}.`,"cmp",{hi:[j],key,keyId:kid,hole:j+1,prefix:i-1,
+     q:{text:`a[${j}]=${a[j]} vs key ${key}: shift a[${j}] right, or stop?`,opts:["Shift it right","Stop here"],ans:gt?0:1}});
     if(!gt)break;
-    a[j+1]=a[j];mov++;log.push(`SHIFT ${j} ${j+1}`);hole=j;
-    snap(`Shift ${a[j+1]} one place right.`,"shift",{sw:[j+1],key,hole,prefix:i-1});
+    a[j+1]=a[j];id[j+1]=id[j];mov++;wr++;log.push(`SHIFT ${j} ${j+1}`);hole=j;
+    snap(`Shift ${a[j+1]} one place right.`,"shift",{sw:[j+1],key,keyId:kid,hole,prefix:i-1});
     j--;
    }
-   a[j+1]=key;log.push(`PLACE ${j+1}`);
+   a[j+1]=key;id[j+1]=kid;wr++;log.push(`PLACE ${j+1}`);
    snap(`Place key ${key} at index ${j+1}. The prefix a[0..${i}] is now sorted.`,"place",{hi:[j+1],prefix:i});
   }
   for(let k=0;k<n;k++)done.add(k);
  }
  log.push(`DONE [${a.join(", ")}] cmp=${cmp} moves=${mov}`);
- snap(`Sorted. ${cmp} comparisons, ${mov} ${alg==="insertion"?"shifts":"swaps"}.`,"",{});
- return {steps,log,cmp,mov};
+ let st="";
+ if(new Set(arr0).size<n){
+  let stable=true;for(let k=1;k<n;k++)if(a[k]===a[k-1]&&id[k]<id[k-1])stable=false;
+  st=stable?" Equal values kept their original order (a before b), so this run was stable.":" Some equal values changed order (b now comes before a), so this run was NOT stable.";
+ }
+ snap(`Sorted. ${cmp} comparisons, ${mov} ${alg==="insertion"?"shifts":"swaps"}, ${wr} array writes.`+st,"",{});
+ return {steps,log,cmp,mov,wr};
 }
 // CORE-END
 
-let ARR=[],mode="bubble",i=0,timer=null,RUN={},PAT="example";
+let ARR=[],mode="bubble",i=0,timer=null,RUN={},PAT="example",TAG=[],answered={},right=0,total=0;
 const $=id=>document.getElementById(id);
 const svg=$("svg");
 function rnd(n){return Math.floor(Math.random()*n)}
@@ -144,59 +179,103 @@ function makeArray(p,n){
  if(p==="dups")return Array.from({length:n},()=>[10,20,30][rnd(3)]);
  return a;
 }
-function load(p,n){
- PAT=p;ARR=makeArray(p,n);
- $("nIn").value=ARR.length;
+function start(arr,p){
+ PAT=p;ARR=arr;$("nIn").value=ARR.length;$("err").textContent="";
+ // TAG[id] = "a","b",... for values that appear more than once
+ const seen={},cnt={};ARR.forEach(v=>cnt[v]=(cnt[v]||0)+1);
+ TAG=ARR.map(v=>cnt[v]>1?"abcdefghijkl"[(seen[v]=(seen[v]||0)+1)-1]:"");
  RUN={bubble:gen("bubble",ARR),selection:gen("selection",ARR),insertion:gen("insertion",ARR)};
- stop();i=0;render();
+ stop();i=0;answered={};right=0;total=0;render();
 }
+function load(p,n){start(makeArray(p,n),p)}
+function useOwn(){
+ const parts=$("own").value.trim().split(/[\s,]+/).filter(Boolean);
+ const v=parts.map(Number);
+ if(parts.length<3||parts.length>12||v.some(x=>!Number.isInteger(x)||x<0||x>99)){$("err").textContent="Enter 3 to 12 whole numbers from 0 to 99, separated by spaces or commas.";return}
+ start(v,"custom");
+}
+const label=(v,id)=>`${v}${TAG[id]?`<tspan font-size="11" dy="3">${TAG[id]}</tspan>`:""}`;
+const asking=()=>{const S=RUN[mode].steps[i];return $("pred").checked&&S.q&&!(i in answered)};
 function render(){
  const R=RUN[mode],S=R.steps[i],n=ARR.length;
- const W=600,H=340,top=40,base=290,mx=Math.max(...ARR),bw=W/n,pad=Math.min(10,bw*0.15);
+ const W=600,top=40,base=290,mx=Math.max(1,...ARR),bw=W/n,pad=Math.min(10,bw*0.15);
+ const hgt=v=>Math.max(14,(v/mx)*(base-top-40));
  let h="";
  for(let k=0;k<n;k++){
-  const v=S.arr[k],bh=Math.max(14,(v/mx)*(base-top-40)),x=k*bw+pad/2,w=bw-pad;
-  if(S.hole===k){h+=`<rect x="${x}" y="${base-bh}" width="${w}" height="${bh}" fill="none" stroke="#99a" stroke-dasharray="5 4" stroke-width="2"/>`}
+  const v=S.arr[k],bh=hgt(v),x=k*bw+pad/2,w=bw-pad;let tag="";
+  if(S.hole===k){h+=`<rect x="${x}" y="${base-bh}" width="${w}" height="${bh}" fill="none" stroke="#99a" stroke-dasharray="5 4" stroke-width="2"/>`;tag="hole"}
   else{
    let c="#cfe0ff";
-   if(mode==="insertion"&&k<=S.prefix)c="#c8e6c9";
-   if(S.done.includes(k)&&mode!=="insertion")c="#8fd19e";
-   if(S.minIdx===k)c="#b388ff";
-   if(S.hi.includes(k))c="#ffd75e";
-   if(S.sw.includes(k))c="#ff8a80";
-   h+=`<rect class="bar" x="${x}" y="${base-bh}" width="${w}" height="${bh}" fill="${c}" stroke="#556" stroke-width="1.5" rx="3"/>`;
-   h+=`<text class="num" x="${x+w/2}" y="${base-bh-6}">${v}</text>`;
+   if(mode==="insertion"&&k<=S.prefix){c="#c8e6c9";tag="sorted"}
+   if(S.done.includes(k)&&mode!=="insertion"){c="#8fd19e";tag="✓"}
+   if(S.minIdx===k){c="#b388ff";tag="min"}
+   if(S.hi.includes(k)){c="#ffd75e";tag=S.line==="place"?"placed":"cmp"}
+   if(S.sw.includes(k)){c="#ff8a80";tag=mode==="insertion"?"shift":"swap"}
+   h+=`<rect x="${x}" y="${base-bh}" width="${w}" height="${bh}" fill="${c}" stroke="#556" stroke-width="1.5" rx="3"/>`;
+   h+=`<text class="num" x="${x+w/2}" y="${base-bh-6}">${label(v,S.ids[k])}</text>`;
   }
   h+=`<text class="idx" x="${x+w/2}" y="${base+16}">${k}</text>`;
+  if(tag)h+=`<text class="tag" x="${x+w/2}" y="${base+32}">${tag}</text>`;
  }
  if(S.key!==null){
-  const bh=Math.max(14,(S.key/mx)*(base-top-40)),kx=S.hole*bw+pad/2,w=bw-pad;
+  const bh=hgt(S.key),kx=S.hole*bw+pad/2,w=bw-pad;
   h+=`<rect x="${kx}" y="${base-bh-34}" width="${w}" height="${bh}" fill="#6ea0ff" stroke="#14307a" stroke-width="2" rx="3" opacity=".9"/>`;
-  h+=`<text class="num" x="${kx+w/2}" y="${base-bh-40}" fill="#14307a">key ${S.key}</text>`;
+  h+=`<text class="num" x="${kx+w/2}" y="${base-bh-40}" fill="#14307a">key ${label(S.key,S.keyId)}</text>`;
  }
  svg.innerHTML=h;
- $("msg").textContent=S.msg;
- $("sCmp").textContent=S.cmp;$("sMv").textContent=S.mov;
+ const msg=$("msg");
+ if(asking()){
+  msg.className="ask";
+  msg.innerHTML=`<div class="q">Predict: ${S.q.text}</div><div class="opts">${S.q.opts.map((o,k)=>`<button data-a="${k}">${o}</button>`).join("")}</div>`;
+  msg.querySelectorAll("[data-a]").forEach(b=>b.onclick=()=>answer(+b.dataset.a));
+ }else{
+  msg.className="";
+  const a=answered[i];
+  msg.innerHTML=(a===undefined?"":a?'<span class="ok">✔ Right. </span>':'<span class="no">✘ Not quite. </span>')+S.msg.replace(/</g,"&lt;");
+ }
+ $("score").textContent=$("pred").checked?`Predictions: ${right} / ${total} right`:"";
+ $("sCmp").textContent=S.cmp;$("sMv").textContent=S.mov;$("sWr").textContent=S.wr;
  $("mvLbl").textContent=mode==="insertion"?"Shifts":"Swaps";
  $("code").innerHTML=CODE[mode].map(([id,t])=>`<span class="ln ${id&&id===S.line?"hl":""}">${t.replace(/</g,"&lt;")||" "}</span>`).join("");
+ $("log").innerHTML=R.log.slice(0,S.logN+(i===R.steps.length-1?1:0)).map((l,k,arr)=>`<span class="ln ${k===arr.length-1?"hl":""}">${l}</span>`).join("")||'<span class="ln">(nothing yet)</span>';
+ const lg=$("log");lg.scrollTop=lg.scrollHeight;
  $("count").textContent=`step ${i+1} / ${R.steps.length}`;
- const nm={bubble:"Bubble",selection:"Selection",insertion:"Insertion"};
- $("tbl").innerHTML="<tr><th>Algorithm</th><th>Comparisons</th><th>Swaps / shifts</th></tr>"+Object.keys(nm).map(a=>`<tr class="${a===mode?"me":""}"><td>${nm[a]}</td><td>${RUN[a].cmp}</td><td>${RUN[a].mov}${a==="insertion"?" (shifts)":""}</td></tr>`).join("")+`<tr><td colspan="3" style="color:#667">n = ${n}, so n(n\u22121)/2 = ${n*(n-1)/2}</td></tr>`;
+ const nm={bubble:"Bubble",selection:"Selection",insertion:"Insertion"},T=n*(n-1)/2;
+ const rg={bubble:[`${n-1} – ${T}`,`0 – ${T}`],selection:[`${T} – ${T}`,`0 – ${n-1}`],insertion:[`${n-1} – ${T}`,`0 – ${T}`]};
+ const show=$("range").checked;
+ $("tbl").innerHTML=`<tr><th>Algorithm</th><th>Comparisons</th>${show?"<th>best – worst</th>":""}<th>Swaps / shifts</th>${show?"<th>best – worst</th>":""}<th>Array writes</th></tr>`+
+  Object.keys(nm).map(a=>`<tr class="${a===mode?"me":""}"><td>${nm[a]}</td><td>${RUN[a].cmp}</td>${show?`<td>${rg[a][0]}</td>`:""}<td>${RUN[a].mov}${a==="insertion"?" (shifts)":""}</td>${show?`<td>${rg[a][1]}</td>`:""}<td>${RUN[a].wr}</td></tr>`).join("")+
+  `<tr><td colspan="${show?6:4}" style="color:#667">n = ${n}, so n(n−1)/2 = ${T}</td></tr>`;
  const sq=(c,t)=>`<b style="background:${c}"></b>${t}`;
- let lg=sq("#cfe0ff","unsorted")+sq("#ffd75e","being compared")+sq("#ff8a80","just swapped / shifted");
- if(mode==="selection")lg+=sq("#b388ff","current min");
- if(mode==="insertion")lg+=sq("#c8e6c9","sorted prefix")+sq("#6ea0ff","key in hand");else lg+=sq("#8fd19e","in final place");
- $("legend").innerHTML=lg;
+ let lgd=sq("#cfe0ff","unsorted")+sq("#ffd75e","being compared (cmp)")+sq("#ff8a80",mode==="insertion"?"just shifted (shift)":"just swapped (swap)");
+ if(mode==="selection")lgd+=sq("#b388ff","current min (min)");
+ if(mode==="insertion")lgd+=sq("#c8e6c9","sorted prefix (sorted)")+sq("#6ea0ff","key in hand");else lgd+=sq("#8fd19e","in final place (✓)");
+ if(TAG.some(Boolean))lgd+=`<span style="margin-left:10px">Small letters (a, b) mark equal values so you can see whether they keep their order.</span>`;
+ $("legend").innerHTML=lgd;
 }
-function go(d){i=Math.max(0,Math.min(RUN[mode].steps.length-1,i+d));render()}
-function stop(){clearInterval(timer);timer=null;$("bPlay").textContent="Play"}
-function setMode(m){stop();mode=m;i=0;for(const k of ["Bubble","Selection","Insertion"])$("b"+k).className=(k.toLowerCase()===m)?"on":"";render()}
+function answer(k){const S=RUN[mode].steps[i];const ok=k===S.q.ans;answered[i]=ok;total++;if(ok)right++;render()}
+function go(d){
+ if(d>0&&asking()){const b=$("msg").querySelector("button");if(b)b.focus();return false}
+ i=Math.max(0,Math.min(RUN[mode].steps.length-1,i+d));render();return true;
+}
+function stop(){clearTimeout(timer);timer=null;$("bPlay").textContent="Play"}
+function tick(){
+ if(i>=RUN[mode].steps.length-1)return stop();
+ if(asking())return stop();
+ go(1);
+ if(asking())return stop();
+ timer=setTimeout(tick,+$("speed").value);
+}
+function setMode(m){stop();mode=m;i=0;answered={};for(const k of ["Bubble","Selection","Insertion"])$("b"+k).className=(k.toLowerCase()===m)?"on":"";render()}
 $("bBubble").onclick=()=>setMode("bubble");$("bSelection").onclick=()=>setMode("selection");$("bInsertion").onclick=()=>setMode("insertion");
 $("bNext").onclick=()=>{stop();go(1)};$("bBack").onclick=()=>{stop();go(-1)};
-$("bReset").onclick=()=>{stop();i=0;render()};
-$("bPlay").onclick=()=>{if(timer)return stop();$("bPlay").textContent="Pause";if(i>=RUN[mode].steps.length-1)i=0;timer=setInterval(()=>{if(i>=RUN[mode].steps.length-1)return stop();go(1)},700)};
-document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT")return;if(e.key==="ArrowRight"){stop();go(1)}if(e.key==="ArrowLeft"){stop();go(-1)}});
+$("bReset").onclick=()=>{stop();i=0;answered={};render()};
+$("bPlay").onclick=()=>{if(timer)return stop();if(i>=RUN[mode].steps.length-1)i=0;if(asking())return go(1);$("bPlay").textContent="Pause";timer=setTimeout(tick,+$("speed").value)};
+$("pred").onchange=()=>{stop();render()};
+$("range").onchange=render;
+$("bOwn").onclick=useOwn;$("own").addEventListener("keydown",e=>{if(e.key==="Enter")useOwn()});
+document.addEventListener("keydown",e=>{if(e.target.tagName==="INPUT"&&e.target.type!=="checkbox")return;if(e.key==="ArrowRight"){stop();go(1)}if(e.key==="ArrowLeft"){stop();go(-1)}});
 document.querySelectorAll("[data-p]").forEach(b=>b.onclick=()=>load(b.dataset.p,Math.max(3,Math.min(12,Math.round(+$("nIn").value)||6))));
-$("nIn").onchange=()=>{const n=Math.round(+$("nIn").value);if(!(n>=3&&n<=12)){$("nIn").value=ARR.length;return}load(PAT==="example"?"random":PAT,n)};
+$("nIn").onchange=()=>{const n=Math.round(+$("nIn").value);if(!(n>=3&&n<=12)){$("nIn").value=ARR.length;return}load(PAT==="example"||PAT==="custom"?"random":PAT,n)};
 load("example",6);
 </script></body></html>
